@@ -1,8 +1,8 @@
 package org.example.effectivemobiletask.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.effectivemobiletask.exception.AccessDeniedException;
-import org.example.effectivemobiletask.exception.NotFoundException;
+import org.example.effectivemobiletask.util.exception.AccessDeniedException;
+import org.example.effectivemobiletask.util.exception.NotFoundException;
 import org.example.effectivemobiletask.model.entity.Comment;
 import org.example.effectivemobiletask.model.entity.Task;
 import org.example.effectivemobiletask.model.entity.User;

@@ -1,7 +1,7 @@
 package org.example.effectivemobiletask.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.effectivemobiletask.exception.NotFoundException;
+import org.example.effectivemobiletask.util.exception.NotFoundException;
 import org.example.effectivemobiletask.model.entity.Assignee;
 import org.example.effectivemobiletask.repository.AssigneeRepository;
 import org.example.effectivemobiletask.service.AssigneeService;

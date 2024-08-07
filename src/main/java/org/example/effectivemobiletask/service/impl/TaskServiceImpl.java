@@ -1,8 +1,8 @@
 package org.example.effectivemobiletask.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.effectivemobiletask.exception.AccessDeniedException;
-import org.example.effectivemobiletask.exception.NotFoundException;
+import org.example.effectivemobiletask.util.exception.AccessDeniedException;
+import org.example.effectivemobiletask.util.exception.NotFoundException;
 import org.example.effectivemobiletask.model.entity.Assignee;
 import org.example.effectivemobiletask.model.entity.Task;
 import org.example.effectivemobiletask.model.entity.User;
@@ -28,6 +28,7 @@ public class TaskServiceImpl implements TaskService {
         task.setCreationDate(LocalDateTime.now());
         task.setAuthor(user);
         task.setStatus(TaskStatus.PENDING);
+
         return taskRepository.save(task);
     }
 
@@ -43,8 +44,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getAllAssignedTasks(User user) {
-        return ((Assignee) user).getAssignedTasks();
+    public List<Task> getAllAssignedTasks(User assignee) {
+        return ((Assignee) assignee).getAssignedTasks();
     }
 
     @Override
@@ -58,7 +59,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task getTask(Long id, User author) {
         return taskRepository.findByIdAndAuthor(id, author).orElseThrow(
-                () -> new NotFoundException("Task with not found")
+                () -> new NotFoundException("Task not found")
         );
     }
 
@@ -73,37 +74,44 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void deleteTask(Long id, User author) {
         Task task = getTask(id, author);
+
         taskRepository.delete(task);
     }
 
     @Override
     public Task updateTask(Long id, Task task, User author) {
-        Task taskToUpdate = getTask(id, author);
-        taskToUpdate.setTitle(task.getTitle());
-        taskToUpdate.setDescription(task.getDescription());
-        taskToUpdate.setPriority(task.getPriority());
-        taskToUpdate.setDueDate(task.getDueDate());
-        taskToUpdate.setAssignee(task.getAssignee());
-        return taskRepository.save(taskToUpdate);
+        Task existingTask = getTask(id, author);
+
+        existingTask.setTitle(task.getTitle());
+        existingTask.setDescription(task.getDescription());
+        existingTask.setPriority(task.getPriority());
+        existingTask.setDueDate(task.getDueDate());
+        existingTask.setAssignee(task.getAssignee());
+
+        return taskRepository.save(existingTask);
     }
 
     @Override
-    public Task assignTask(Long id, User user) {
+    public Task assignTask(Long id, User assignee) {
         Task task = getTask(id);
+
         if (task.getAssignee() != null) {
             throw new AccessDeniedException("Task already has an assignee.");
         }
-        task.setAssignee((Assignee) user);
+        task.setAssignee((Assignee) assignee);
+
         return taskRepository.save(task);
     }
 
     @Override
     public Task updateStatus(Long id, User assignee, TaskStatus status) {
         Task task = getTask(id);
+
         if (!Objects.equals(assignee, task.getAssignee())) {
             throw new AccessDeniedException("You don't have permission to update the status of this task");
         }
         task.setStatus(status);
+
         return taskRepository.save(task);
     }
 }

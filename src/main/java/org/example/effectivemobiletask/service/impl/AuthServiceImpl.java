@@ -1,8 +1,8 @@
 package org.example.effectivemobiletask.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.effectivemobiletask.exception.DuplicateException;
-import org.example.effectivemobiletask.exception.NotFoundException;
+import org.example.effectivemobiletask.util.exception.DuplicateException;
+import org.example.effectivemobiletask.util.exception.NotFoundException;
 import org.example.effectivemobiletask.model.dto.auth.AuthRequest;
 import org.example.effectivemobiletask.model.dto.auth.AuthResponse;
 import org.example.effectivemobiletask.model.dto.auth.RegistrationRequest;
@@ -29,7 +29,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse register(RegistrationRequest request) {
-        validate(request);
         User user = createUser(request);
         userRepository.save(user);
         return new AuthResponse(jwtService.generateToken(user));
@@ -50,14 +49,5 @@ public class AuthServiceImpl implements AuthService {
                 UserRole.ROLE_USER,
                 new ArrayList<>()
         );
-    }
-
-    private void validate(RegistrationRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateException("An account with the email '" + request.getEmail() + "' already exists.");
-        }
-        if (userRepository.existsByName(request.getName())) {
-            throw new DuplicateException("An account with the name '" + request.getName() + "' already exists.");
-        }
     }
 }

@@ -1,9 +1,9 @@
 package org.example.effectivemobiletask.controller;
 
-import org.example.effectivemobiletask.exception.AccessDeniedException;
-import org.example.effectivemobiletask.exception.DuplicateException;
-import org.example.effectivemobiletask.exception.InvalidOperationException;
-import org.example.effectivemobiletask.exception.NotFoundException;
+import org.example.effectivemobiletask.util.exception.AccessDeniedException;
+import org.example.effectivemobiletask.util.exception.DuplicateException;
+import org.example.effectivemobiletask.util.exception.InvalidOperationException;
+import org.example.effectivemobiletask.util.exception.NotFoundException;
 import org.example.effectivemobiletask.model.dto.exception.ExceptionResponse;
 import org.example.effectivemobiletask.util.CreatorsUtil;
 import org.springframework.http.HttpStatus;

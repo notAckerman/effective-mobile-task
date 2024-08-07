@@ -1,4 +1,4 @@
-package org.example.effectivemobiletask.exception;
+package org.example.effectivemobiletask.util.exception;
 
 public class DuplicateException extends RuntimeException {
     public DuplicateException(String message) {

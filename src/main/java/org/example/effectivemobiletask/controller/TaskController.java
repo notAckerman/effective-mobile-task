@@ -2,7 +2,7 @@ package org.example.effectivemobiletask.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.effectivemobiletask.exception.AccessDeniedException;
+import org.example.effectivemobiletask.util.exception.AccessDeniedException;
 import org.example.effectivemobiletask.model.dto.task.TaskRequest;
 import org.example.effectivemobiletask.model.dto.task.TaskResponse;
 import org.example.effectivemobiletask.model.dto.task.TaskStatusUpdateRequest;
@@ -53,9 +53,7 @@ public class TaskController {
     }
 
     @PutMapping("/users/{username}/tasks/{id}")
-    public ResponseEntity<TaskResponse> putTask(@PathVariable String username,
-                                                @PathVariable Long id,
-                                                @Valid @RequestBody TaskRequest taskRequest) {
+    public ResponseEntity<TaskResponse> putTask(@PathVariable String username, @PathVariable Long id, @Valid @RequestBody TaskRequest taskRequest) {
         User user = getUser();
         checkPermission(user, username);
 
@@ -67,6 +65,19 @@ public class TaskController {
         return ResponseEntity.ok(CustomModelMapper.toDto(TaskResponse.class, task));
     }
 
+    @PostMapping("/users/{username}/tasks")
+    public ResponseEntity<TaskResponse> postTask(@RequestBody @Valid TaskRequest taskRequest, @PathVariable String username) {
+        User user = getUser();
+        checkPermission(user, username);
+
+        Task task = CustomModelMapper.toEntity(Task.class, taskRequest);
+        task.setAssignee(getAssignee(taskRequest));
+
+        task = taskService.createTask(task, user);
+
+        return new ResponseEntity<>(CustomModelMapper.toDto(TaskResponse.class, task), HttpStatus.CREATED);
+    }
+
     @GetMapping("/tasks/available")
     public ResponseEntity<List<TaskResponse>> getAvailableTasks() {
         List<Task> tasks = taskService.getAllAvailableTasks();
@@ -75,8 +86,7 @@ public class TaskController {
     }
 
     @PatchMapping("/tasks/{id}/status")
-    public ResponseEntity<TaskResponse> updateTaskStatus(@PathVariable Long id,
-                                                         @RequestBody TaskStatusUpdateRequest status) {
+    public ResponseEntity<TaskResponse> updateTaskStatus(@PathVariable Long id, @RequestBody TaskStatusUpdateRequest status) {
         Task task = taskService.updateStatus(id, getUser(), status.getStatus());
 
         return ResponseEntity.ok(CustomModelMapper.toDto(TaskResponse.class, task));
@@ -94,16 +104,6 @@ public class TaskController {
         List<Task> tasks = taskService.getAllAssignedTasks(getUser());
 
         return ResponseEntity.ok(CustomModelMapper.toDtoList(tasks, TaskResponse.class));
-    }
-
-    @PostMapping("/tasks")
-    public ResponseEntity<TaskResponse> postTask(@RequestBody @Valid TaskRequest taskRequest) {
-        Task task = CustomModelMapper.toEntity(Task.class, taskRequest);
-        task.setAssignee(getAssignee(taskRequest));
-
-        task = taskService.createTask(task, getUser());
-
-        return new ResponseEntity<>(CustomModelMapper.toDto(TaskResponse.class, task), HttpStatus.CREATED);
     }
 
     private void checkPermission(User user, String username) {

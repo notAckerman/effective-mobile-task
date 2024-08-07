@@ -7,15 +7,15 @@ import org.example.effectivemobiletask.model.map.TaskStatus;
 import java.util.List;
 
 public interface TaskService {
-    Task createTask(Task task, User user);
+    Task createTask(Task task, User author);
 
-    List<Task> getAllTasks(String name);
+    List<Task> getAllTasks(String authorUsername);
 
     List<Task> getAllAvailableTasks();
 
-    List<Task> getAllAssignedTasks(User user);
+    List<Task> getAllAssignedTasks(User assignee);
 
-    Task getTask(Long id, String name);
+    Task getTask(Long id, String authorUsername);
 
     Task getTask(Long id, User author);
 
@@ -25,7 +25,7 @@ public interface TaskService {
 
     Task updateTask(Long id, Task task, User author);
 
-    Task assignTask(Long id, User user);
+    Task assignTask(Long id, User assignee);
 
     Task updateStatus(Long id, User assignee, TaskStatus status);
 }

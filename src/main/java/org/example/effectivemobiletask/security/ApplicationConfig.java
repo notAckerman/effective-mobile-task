@@ -1,7 +1,7 @@
 package org.example.effectivemobiletask.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.effectivemobiletask.exception.NotFoundException;
+import org.example.effectivemobiletask.util.exception.NotFoundException;
 import org.example.effectivemobiletask.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

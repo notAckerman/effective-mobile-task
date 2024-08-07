@@ -1,4 +1,4 @@
-package org.example.effectivemobiletask.exception;
+package org.example.effectivemobiletask.util.exception;
 
 public class AccessDeniedException extends RuntimeException {
     public AccessDeniedException(String message) {
