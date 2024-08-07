@@ -6,6 +6,7 @@ import org.example.effectivemobiletask.exception.AccessDeniedException;
 import org.example.effectivemobiletask.model.dto.task.TaskRequest;
 import org.example.effectivemobiletask.model.dto.task.TaskResponse;
 import org.example.effectivemobiletask.model.dto.task.TaskStatusUpdateRequest;
+import org.example.effectivemobiletask.model.entity.Assignee;
 import org.example.effectivemobiletask.model.entity.Task;
 import org.example.effectivemobiletask.model.entity.User;
 import org.example.effectivemobiletask.service.AssigneeService;
@@ -31,82 +32,91 @@ public class TaskController {
     @GetMapping("/users/{username}/tasks")
     public ResponseEntity<List<TaskResponse>> getTasks(@PathVariable String username) {
         List<Task> tasks = taskService.getAllTasks(username);
-        List<TaskResponse> response = CustomModelMapper.toDtoList(tasks, TaskResponse.class);
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok(CustomModelMapper.toDtoList(tasks, TaskResponse.class));
     }
 
     @GetMapping("/users/{username}/tasks/{id}")
-    public ResponseEntity<TaskResponse> getTask(@PathVariable String username, @PathVariable long id) {
+    public ResponseEntity<TaskResponse> getTask(@PathVariable String username, @PathVariable Long id) {
         Task task = taskService.getTask(id, username);
-        TaskResponse response = CustomModelMapper.toDto(TaskResponse.class, task);
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok(CustomModelMapper.toDto(TaskResponse.class, task));
     }
 
     @DeleteMapping("/users/{username}/tasks/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTask(@PathVariable String username, @PathVariable long id) {
+    public void deleteTask(@PathVariable String username, @PathVariable Long id) {
         User user = getUser();
-        if (!Objects.equals(user.getName(), username)) {
-            throw new AccessDeniedException("You do not have permission to delete this task");
-        }
+        checkPermission(user, username);
+
         taskService.deleteTask(id, user);
     }
 
     @PutMapping("/users/{username}/tasks/{id}")
-    public ResponseEntity<TaskResponse> putTask(@PathVariable String username, @PathVariable long id, @Valid @RequestBody TaskRequest taskRequest) {
+    public ResponseEntity<TaskResponse> putTask(@PathVariable String username,
+                                                @PathVariable Long id,
+                                                @Valid @RequestBody TaskRequest taskRequest) {
         User user = getUser();
-        if (!Objects.equals(user.getName(), username)) {
-            throw new AccessDeniedException("You do not have permission to update this task");
-        }
+        checkPermission(user, username);
+
         Task task = CustomModelMapper.toEntity(Task.class, taskRequest);
-        task.setAssignee(taskRequest.getAssignee() == null ? null : assigneeService.getAssignee(taskRequest.getAssignee()));
+        task.setAssignee(getAssignee(taskRequest));
+
         task = taskService.updateTask(id, task, user);
-        TaskResponse response = CustomModelMapper.toDto(TaskResponse.class, task);
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok(CustomModelMapper.toDto(TaskResponse.class, task));
     }
 
     @GetMapping("/tasks/available")
     public ResponseEntity<List<TaskResponse>> getAvailableTasks() {
         List<Task> tasks = taskService.getAllAvailableTasks();
-        List<TaskResponse> response = CustomModelMapper.toDtoList(tasks, TaskResponse.class);
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok(CustomModelMapper.toDtoList(tasks, TaskResponse.class));
     }
 
     @PatchMapping("/tasks/{id}/status")
-    public ResponseEntity<TaskResponse> updateTaskStatus(@PathVariable long id, @RequestBody TaskStatusUpdateRequest status) {
-        User user = getUser();
-        Task task = taskService.updateStatus(id, user, status.getStatus());
-        TaskResponse response = CustomModelMapper.toDto(TaskResponse.class, task);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<TaskResponse> updateTaskStatus(@PathVariable Long id,
+                                                         @RequestBody TaskStatusUpdateRequest status) {
+        Task task = taskService.updateStatus(id, getUser(), status.getStatus());
+
+        return ResponseEntity.ok(CustomModelMapper.toDto(TaskResponse.class, task));
     }
 
     @PostMapping("/tasks/{id}/assign")
-    public ResponseEntity<TaskResponse> assignTask(@PathVariable long id) {
-        User user = getUser();
-        Task task = taskService.assignTask(id, user);
-        TaskResponse response = CustomModelMapper.toDto(TaskResponse.class, task);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<TaskResponse> assignTask(@PathVariable Long id) {
+        Task task = taskService.assignTask(id, getUser());
+
+        return ResponseEntity.ok(CustomModelMapper.toDto(TaskResponse.class, task));
     }
 
     @GetMapping("/tasks/assigned")
     public ResponseEntity<List<TaskResponse>> getAssignedTasks() {
-        User user = getUser();
-        List<Task> tasks = taskService.getAllAssignedTasks(user);
-        List<TaskResponse> response = CustomModelMapper.toDtoList(tasks, TaskResponse.class);
-        return ResponseEntity.ok(response);
+        List<Task> tasks = taskService.getAllAssignedTasks(getUser());
+
+        return ResponseEntity.ok(CustomModelMapper.toDtoList(tasks, TaskResponse.class));
     }
 
     @PostMapping("/tasks")
     public ResponseEntity<TaskResponse> postTask(@RequestBody @Valid TaskRequest taskRequest) {
-        User user = getUser();
         Task task = CustomModelMapper.toEntity(Task.class, taskRequest);
-        task.setAssignee(taskRequest.getAssignee() == null ? null : assigneeService.getAssignee(taskRequest.getAssignee()));
-        task = taskService.createTask(task, user);
-        TaskResponse response = CustomModelMapper.toDto(TaskResponse.class, task);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        task.setAssignee(getAssignee(taskRequest));
+
+        task = taskService.createTask(task, getUser());
+
+        return new ResponseEntity<>(CustomModelMapper.toDto(TaskResponse.class, task), HttpStatus.CREATED);
     }
 
-    private static User getUser() {
+    private void checkPermission(User user, String username) {
+        if (!Objects.equals(user.getName(), username)) {
+            throw new AccessDeniedException("You do not have permission to perform this action on this task");
+        }
+    }
+
+    private Assignee getAssignee(TaskRequest taskRequest) {
+        return taskRequest.getAssignee() == null ? null : assigneeService.getAssignee(taskRequest.getAssignee());
+    }
+
+    private User getUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
