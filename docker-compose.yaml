@@ -1,0 +1,17 @@
+services:
+  database:
+    image: mysql:latest
+    container_name: database
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rpass
+      MYSQL_USER: ruser
+      MYSQL_PASSWORD: rpass
+      MYSQL_DATABASE: task-service
+    ports:
+      - '3307:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

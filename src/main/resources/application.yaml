@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: effective-mobile-task
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ruser
+    password: rpass
+    url: jdbc:mysql://localhost:3307/task-service
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+jwt:
+  secret: OHsqV4+55dt0brgx0BhTqBS9wW+ppQBOL7d+F5YvC5VBYo7MZLERQpH+kp1UZHRE
+
+server:
+  port: 8888
