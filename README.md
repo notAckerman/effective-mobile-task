@@ -29,15 +29,13 @@ You can run the application either locally or using Docker. Ensure Docker Deskto
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/effective-mobile.git
-   bash```
+   git clone https://github.com/notAckerman/effective-mobile-task/tree/564be413adb386d01d196e3f14389ff243ab9272
 2. **Open the Project**
    Open the project directory using IntelliJ IDEA or any other IDE of your choice.
 3. **Start the Database**
    Open a terminal in the project directory or use the terminal inside your IDE and run:
    ```bash
    docker-compose up -d
-   bash```
 4. **Run the Application**
    Once the database is up and running, start the application locally through your IDE.
 5. **Access the Documentation**
