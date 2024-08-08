@@ -50,7 +50,7 @@ public class Task extends BaseEntity {
     @Column(name = "completion_date")
     private LocalDateTime completionDate;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
     public void addComment(Comment comment) {

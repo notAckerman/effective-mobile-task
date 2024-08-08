@@ -19,9 +19,6 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private final String SECRET;
-
     public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -68,6 +65,7 @@ public class JwtService {
     }
 
     private SecretKey getSign() {
+        String SECRET = "OHsqV4+55dt0brgx0BhTqBS9wW+ppQBOL7d+F5YvC5VBYo7MZLERQpH+kp1UZHRE";
         byte[] key = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(key);
     }
